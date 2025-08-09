@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 舌診健康分析系統</title>
+<style>
+    body {
+        font-family: "Microsoft JhengHei", sans-serif;
+        background: linear-gradient(135deg, #ffecd2, #fcb69f);
+        text-align: center;
+        padding: 20px;
+        color: #333;
+    }
+    .container {
+        max-width: 500px;
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        margin: auto;
+    }
+    img { max-width: 100%; border-radius: 10px; margin-top: 10px; }
+    #analysis { text-align: left; margin-top: 15px; background: #f7f7f7; padding: 10px; border-radius: 10px; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>AI 舌診健康分析系統</h2>
+    <input type="file" accept="image/*" id="upload">
+    <img id="preview" style="display:none;">
+    <div id="analysis" style="display:none;"></div>
+</div>
+<script>
+const API_URL = "https://你的Netlify子域名.netlify.app/.netlify/functions/tongue-analysis";
+
+document.getElementById("upload").addEventListener("change", async function(){
+    const file = this.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async function(e){
+        document.getElementById("preview").src = e.target.result;
+        document.getElementById("preview").style.display = "block";
+        document.getElementById("analysis").innerHTML = "AI 分析中...";
+        document.getElementById("analysis").style.display = "block";
+
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ image: e.target.result })
+        });
+        const data = await res.json();
+        document.getElementById("analysis").innerHTML = "<h3>健康分析報告</h3><p>" + data.result + "</p>";
+    }
+    reader.readAsDataURL(file);
+});
+</script>
+</body>
+</html>
